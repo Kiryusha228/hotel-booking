@@ -1,9 +1,10 @@
 plugins {
     java
-	kotlin("jvm") version "1.9.25"
+	kotlin("jvm") version "2.0.21"
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.5.8"
 	id("io.spring.dependency-management") version "1.1.7"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 group = "edu.booking"
@@ -35,6 +36,12 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+}
+
+detekt {
+    toolVersion = "1.23.8"
+    config.setFrom(file("config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
 }
 
 kotlin {
