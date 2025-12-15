@@ -2,6 +2,7 @@ package edu.booking.hotel_booking.controller
 
 import edu.booking.hotel_booking.dto.Booking
 import edu.booking.hotel_booking.entity.BookingEntity
+import edu.booking.hotel_booking.kafka.producer.BookingProducer
 import edu.booking.hotel_booking.service.BookingService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -23,7 +24,8 @@ import java.util.UUID
 @RequestMapping("/bookings")
 @Tag(name = "Бронирование", description = "Эндпоинты для работы с бронью")
 class BookingController (
-    private val bookingService: BookingService
+    private val bookingService: BookingService,
+    private val bookingProducer: BookingProducer
 ) {
     @PostMapping
     @Operation(
@@ -38,7 +40,9 @@ class BookingController (
                 "времени выбрасывается исключение RoomAlreadyBookedException"
     )
     fun addBooking(@RequestBody request: Booking): ResponseEntity<BookingEntity> =
-        ResponseEntity.status(HttpStatus.CREATED).body(bookingService.addBooking(request))
+        ResponseEntity.status(HttpStatus.CREATED).body(bookingService.addBooking(request)).also {
+            bookingProducer.sendBookingInfo("Бронь была добавлена!")
+        }
 
 
     @PutMapping("/{id}")
@@ -58,7 +62,9 @@ class BookingController (
         @PathVariable id: UUID,
         @RequestBody request: Booking,
     ): ResponseEntity<BookingEntity> =
-        ResponseEntity.ok(bookingService.updateBooking(id, request))
+        ResponseEntity.ok(bookingService.updateBooking(id, request)).also {
+            bookingProducer.sendBookingInfo("Бронь была добавлена!")
+        }
 
 
     @DeleteMapping("/{id}")

@@ -2,6 +2,7 @@ package edu.booking.hotel_booking.controller
 
 import edu.booking.hotel_booking.dto.Room
 import edu.booking.hotel_booking.entity.RoomEntity
+import edu.booking.hotel_booking.kafka.producer.RoomProducer
 import edu.booking.hotel_booking.service.RoomService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -21,6 +22,7 @@ import java.util.UUID
 @Tag(name = "Комнаны", description = "Эндпоинты для работы с комнатами")
 class RoomController (
     private val roomService: RoomService,
+    private val roomProducer: RoomProducer
 ) {
 
     @PostMapping
@@ -30,7 +32,9 @@ class RoomController (
                 "Комнате присваевается идентефикатор и возвращается в ответе вместе с остальными данными"
     )
     fun addRoom(@RequestBody request: Room): ResponseEntity<RoomEntity> =
-        ResponseEntity.status(HttpStatus.CREATED).body(roomService.addRoom(request))
+        ResponseEntity.status(HttpStatus.CREATED).body(roomService.addRoom(request)).also {
+            roomProducer.sendRoomInfo("Добавлена новая комната!")
+        }
 
 
     @PutMapping("/{id}")
@@ -44,7 +48,9 @@ class RoomController (
         @PathVariable id: UUID,
         @RequestBody request: Room,
     ): ResponseEntity<RoomEntity> =
-        ResponseEntity.ok(roomService.updateRoom(id, request))
+        ResponseEntity.ok(roomService.updateRoom(id, request)).also {
+            roomProducer.sendRoomInfo("Информация о комнате была обновлена!")
+        }
 
 
     @DeleteMapping("/{id}")
@@ -55,5 +61,7 @@ class RoomController (
                 "При неправильном идентефикаторе выбрасывается исключение RoomNotFoundException"
     )
     fun deleteRoom(@PathVariable id: UUID): ResponseEntity<UUID> =
-        ResponseEntity.ok(roomService.deleteRoom(id))
+        ResponseEntity.ok(roomService.deleteRoom(id)).also {
+            roomProducer.sendRoomInfo("Информация о комнате была удалена!")
+        }
 }

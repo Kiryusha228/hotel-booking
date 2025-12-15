@@ -2,6 +2,7 @@ package edu.booking.hotel_booking.controller
 
 import edu.booking.hotel_booking.dto.Guest
 import edu.booking.hotel_booking.entity.GuestEntity
+import edu.booking.hotel_booking.kafka.producer.GuestProducer
 import edu.booking.hotel_booking.service.GuestService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -19,7 +20,8 @@ import java.util.UUID
 @RequestMapping("/guests")
 @Tag(name = "Гости", description = "Эндпоинты для работы с гостями")
 class GuestController (
-    private val guestService: GuestService
+    private val guestService: GuestService,
+    private val guestProducer: GuestProducer
 ) {
     @PostMapping
     @Operation(
@@ -28,7 +30,9 @@ class GuestController (
                 "Гостю присваевается идентефикатор и возвращается в ответе вместе с остальными данными"
     )
     fun addGuest(@RequestBody request: Guest): ResponseEntity<GuestEntity> =
-        ResponseEntity.status(HttpStatus.CREATED).body(guestService.addGuest(request))
+        ResponseEntity.status(HttpStatus.CREATED).body(guestService.addGuest(request)).also {
+            guestProducer.sendGuestInfo("Гость был добавлен!")
+        }
 
 
     @PutMapping("/{id}")
@@ -42,5 +46,7 @@ class GuestController (
         @PathVariable id: UUID,
         @RequestBody request: Guest,
     ): ResponseEntity<GuestEntity> =
-        ResponseEntity.ok(guestService.updateGuest(id, request))
+        ResponseEntity.ok(guestService.updateGuest(id, request)).also {
+            guestProducer.sendGuestInfo("Информация о госте была изменена!")
+        }
 }
