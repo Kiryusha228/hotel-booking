@@ -9,12 +9,13 @@ import java.util.UUID
 
 @Service
 class GuestService (
-    private val guestDao: GuestDao
+    private val guestDao: GuestDao,
+    private val generator: IdGenerator
 ) {
     fun addGuest(request: Guest): GuestEntity =
         guestDao.addGuest(
             GuestEntity(
-                UUID.randomUUID(),
+                generator.generate(),
                 request.firstName,
                 request.lastName,
                 request.middleName,

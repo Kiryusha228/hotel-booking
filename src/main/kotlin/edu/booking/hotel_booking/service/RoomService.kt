@@ -10,11 +10,12 @@ import java.util.UUID
 @Service
 class RoomService (
     private val roomDao: RoomDao,
+    private val generator: IdGenerator
 ) {
     fun addRoom(request: Room): RoomEntity =
         roomDao.createRoom(
             RoomEntity(
-                UUID.randomUUID(),
+                generator.generate(),
                 request.floor,
                 request.number,
                 request.beds

@@ -18,7 +18,8 @@ import java.util.UUID
 class BookingService (
     private val bookingDao: BookingDao,
     private val roomDao: RoomDao,
-    private val guestDao: GuestDao
+    private val guestDao: GuestDao,
+    private val generator: IdGenerator
 ) {
     fun addBooking(request: Booking): BookingEntity {
         validateRoom(request.room)
@@ -32,7 +33,7 @@ class BookingService (
 
         return bookingDao.addBooking(
             BookingEntity(
-                UUID.randomUUID(),
+                generator.generate(),
                 request.startBookingDateTime,
                 request.endBookingDateTime,
                 request.guests,
