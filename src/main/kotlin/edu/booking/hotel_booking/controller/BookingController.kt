@@ -63,7 +63,7 @@ class BookingController (
         @RequestBody request: Booking,
     ): ResponseEntity<BookingEntity> =
         ResponseEntity.ok(bookingService.updateBooking(id, request)).also {
-            bookingProducer.sendBookingInfo("Бронь была добавлена!")
+            bookingProducer.sendBookingInfo("Бронь была обновлена!")
         }
 
 
