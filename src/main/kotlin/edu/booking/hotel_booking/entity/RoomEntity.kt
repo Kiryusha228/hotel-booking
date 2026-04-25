@@ -1,5 +1,10 @@
 package edu.booking.hotel_booking.entity
 
-class RoomEntity {
-    // TODO Добавить свойства в соответствии с заданием
-}
+import java.util.UUID
+
+data class RoomEntity (
+    val id: UUID,
+    val floor: Int,
+    val number: Int,
+    val beds: Int,
+)

@@ -2,21 +2,46 @@ package edu.booking.hotel_booking.service
 
 import edu.booking.hotel_booking.dao.RoomDao
 import edu.booking.hotel_booking.dto.Room
+import edu.booking.hotel_booking.entity.RoomEntity
+import edu.booking.hotel_booking.exception.RoomNotFoundException
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class RoomService (
     private val roomDao: RoomDao,
+    private val generator: IdGenerator
 ) {
-    fun addRoom(request: Room) {
-        throw UnsupportedOperationException("Not implemented yet")
+    fun addRoom(request: Room): RoomEntity =
+        roomDao.createRoom(
+            RoomEntity(
+                generator.generate(),
+                request.floor,
+                request.number,
+                request.beds
+            )
+        )
+
+    fun updateRoom(id: UUID, request: Room): RoomEntity {
+        validateRoom(id)
+        return roomDao.updateRoom(
+            RoomEntity(
+                id,
+                request.floor,
+                request.number,
+                request.beds
+            )
+        )
     }
 
-    fun updateRoom(id: Long, request: Room) {
-        throw UnsupportedOperationException("Not implemented yet")
+    fun deleteRoom(id: UUID): UUID {
+        validateRoom(id)
+        return roomDao.deleteRoom(id)
     }
 
-    fun deleteRoom(id: Long) {
-        throw UnsupportedOperationException("Not implemented yet")
+    private fun validateRoom(roomId: UUID){
+        if (!roomDao.existsById(roomId)) {
+            throw RoomNotFoundException("Комната не найдена!")
+        }
     }
 }
